@@ -1,0 +1,10 @@
+- name : Create a cronjob in all managed nodes
+  hosts: all
+  tasks:
+    - name: Cronjob for logger
+      ansible.builtin.cron:
+        name: Create logger
+        user: student
+        minute: "*/2"
+        job: logger "EX294 in progress"
+        state: present

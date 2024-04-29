@@ -1,0 +1,24 @@
+---
+- name: prepare hardware report
+  hosts: all
+  tasks: 
+    - name: get the file
+      ansible.builtin.get_url:
+        url : http://content.example.com/rhexam/ex294/classroom_materials/hwreport.empty
+        dest: /root/hwreport.txt
+    - name: get the hwinfo
+      ansible.builtin.replace:
+        regexp: "{{item.src}}"
+        replace: "{{item.dest}}"
+        path: /root/hwreport.txt
+      loop:
+        - src: 'hostname'
+          dest: "{{ansible_facts.fqdn}}"
+        - src: 'memory'
+          dest: "{{ansible_facts.memtotal_mb}}"
+        - src: 'biosversion'
+          dest: "{{ansible_facts.bios_version}}"
+        - src: 'vdasize'
+          dest: "{{ansible_facts.devices.vda.size}}"
+        - src: 'vdbsize'
+          dest: "{{ansible_facts.devices.vdb.size}}"

@@ -1,0 +1,9 @@
+---
+- name: deploy phpinfo role in webservers
+  hosts: webservers
+  roles:
+    - phpinfo
+- name: deploy balancer role in balancers
+  hosts: balancers
+  roles:
+    - balancer

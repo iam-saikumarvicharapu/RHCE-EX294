@@ -1,0 +1,5 @@
+---
+- name: deploy apache role in prod 
+  hosts: prod
+  roles:
+    - apache

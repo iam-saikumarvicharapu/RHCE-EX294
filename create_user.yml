@@ -1,0 +1,32 @@
+---
+- name: Create a list of users from file
+  hosts: all
+  vars_files:
+    - user_list.yml
+    - vault.yml
+  tasks:
+    - name: Create groups in managed nodes
+      ansible.builtin.group:
+        name: "{{item}}"
+        state: present
+      loop:
+        - devops
+        - opsmgr
+    - name: create a user as a developer
+      ansible.builtin.user:
+        name: "{{ item.name }}" 
+        password: "{{ dev_pass | password_hash('sha512') }}"
+        password_expire_max: "{{ item.password_expire_days }}"
+        groups: devops
+        state: present
+      loop: "{{ users }}"
+ when:  (inventory_hostname in groups['dev'] or inventory_hostname in groups['test']) and item.job== "developer"
+ - name: create a user as manager
+   ansible.builtin.user:
+     name: "{{ item.name }}" 
+     password: "{{ mgr_pass | password_hash('sha512') }}"
+     password_expire_max: "{{ item.password_expire_days }}"
+     groups: opsmgr
+     state: present
+   loop: "{{ users }}"
+ when: inventory_hostname in groups['prod'] and item.job== "manager"

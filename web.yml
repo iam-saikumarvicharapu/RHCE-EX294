@@ -1,0 +1,42 @@
+---
+- name: deploy apache webserver in dev host group
+  hosts: dev
+  tasks:
+    - name: install firewalld package
+      ansible.builtin.dnf:
+        name: firewalld
+        state: present
+    - name: start and enable service
+      ansible.builtin.service:
+        name: firewalld
+        state: started
+        enabled: yes
+    - name: create a directory
+      ansible.builtin.file: 
+        path: /devweb
+        state: directory
+        group: apache
+        mode: '2775'
+        setype: httpd_sys_content_t 
+    - name: copy the contents to index.html
+      ansible.builtin.copy:
+        content: "Development"
+        dest: /devweb/index.html 
+        setype: httpd_sys_content_t
+    - name: create a link from /devweb 
+      ansible.builtin.file:
+      src: /devweb
+      dest: /var/www/html/devweb
+      state: link
+      force: yes
+    - name: allow http from from firewall
+      ansible.posix.firewalld:
+        service: http
+        state: enabled
+        permanent: yes
+        immediate: yes
+    - name: restart apache webserver
+      ansible.builtin.service:
+        name: httpd
+        state: restarted
+        enabled: yes
